@@ -1,7 +1,23 @@
-pip install celery django-celery
+pip install celery redis
 
 
 # settings.py
+
+# Application definition
+
+INSTALLED_APPS = [
+
+    # 'channels',
+
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'celery',
+]
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0' # Example using Redis as broker
