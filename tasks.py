@@ -1,22 +1,25 @@
 from celery import shared_task
+import logging
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import datetime
 from settings.models import UserDetails
 import pytz
 
-# @shared_task
-# def send_bulk_emails(subject, message):
-#     print('hello')
-#     users=UserDetails.objects.all()
-#     emails=[user.email for user in users]
-#     batch_size=100
-#     for i in range(0, len(emails), batch_size):
-#         batch_emails=emails[i:i+batch_size]
-#         try:
-#             send_mail(subject, message, settings.EMAIL_HOST_USER, batch_emails)
-#         except Exception as e:
-#             print(f"error sending emails: {str(e)}")    
+logger=logging.getLogger(__name__)
+
+@shared_task
+def send_bulk_emails(subject, message):
+    print('hello')
+    users=UserDetails.objects.all()
+    emails=[user.email for user in users]
+    batch_size=100
+    for i in range(0, len(emails), batch_size):
+        batch_emails=emails[i:i+batch_size]
+        try:
+            send_mail(subject, message, settings.EMAIL_HOST_USER, batch_emails)
+        except Exception as e:
+            logger.error(f"error sending emails: {str(e)}")    
 
 # @shared_task
 # def schedule_bulk_email(subject,message, schedule_time):
@@ -38,7 +41,7 @@ def send_bulk_emails(subject, message, emails):
     try:
         send_mail(subject, message, settings.EMAIL_HOST_USER, emails)
     except Exception as e:
-        print(f"error sending emails: {str(e)}")    
+        logger.error(f"error sending emails: {str(e)}")    
 
 @shared_task
 def schedule_bulk_email(subject, message, schedule_time):
@@ -53,6 +56,9 @@ def schedule_bulk_email(subject, message, schedule_time):
         #     batch_emails = emails[i:i + batch_size]
         send_bulk_emails.apply_async((subject, message, emails), countdown=delta)
     else:
-        print("Schedule time should be in the future.")
+        logger.error("Schedule time should be in the future.")
 
 
+"""Error handling is done using the logger.error() method instead of directly 
+printing the error to the console. This is generally a better practice, especially 
+in production environments."""
